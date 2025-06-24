@@ -7,7 +7,8 @@ This repository contains a simple installation script for configuring a server w
 Run the script:
 
 ```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/mytricker0/ServerAutoconfig/refs/heads/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/mytricker0/ServerAutoconfig/refs/heads/main/install.sh)"
+
 ```
 
 The script requires sudo privileges to install packages.
