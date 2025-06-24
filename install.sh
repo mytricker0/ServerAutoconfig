@@ -1,6 +1,34 @@
 #!/bin/bash
 set -e
 
+# Prompt to create a new user
+read -rp "Do you want to create a new user? (y/n): " CREATE_USER
+CREATE_USER=$(echo "$CREATE_USER" | tr '[:upper:]' '[:lower:]')
+
+if [[ "$CREATE_USER" == "y" || "$CREATE_USER" == "yes" ]]; then
+  read -rp "Enter the username to create: " NEW_USER
+
+  # Check if the user already exists
+  if id "$NEW_USER" >/dev/null 2>&1; then
+    echo "User '$NEW_USER' already exists."
+  else
+    # Create user with home directory
+    sudo adduser --gecos "" "$NEW_USER"
+
+    # Ensure docker group exists
+    if ! getent group docker >/dev/null 2>&1; then
+      sudo groupadd docker
+    fi
+
+    # Add user to docker group
+    sudo usermod -aG docker "$NEW_USER"
+    echo "User '$NEW_USER' added to 'docker' group. Docker will be usable without sudo after re-login."
+  fi
+
+  echo "Switching to user '$NEW_USER'..."
+  exec su - "$NEW_USER"
+fi
+
 # Install zsh if not present
 if ! command -v zsh >/dev/null 2>&1; then
   sudo apt-get update
@@ -55,7 +83,7 @@ else
   echo "$PLUGIN_LINE" >> "$HOME/.zshrc"
 fi
 
-# Install Docker# Check if Docker is already installed
+# Install Docker if not installed
 if ! command -v docker >/dev/null 2>&1; then
   echo "Docker not found. Installing Docker..."
   sudo apt-get update
